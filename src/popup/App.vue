@@ -36,7 +36,7 @@ export default {
 
 input{
   outline: none ;
-  // -webkit-appearance: none ;
+  appearance: none ;
   box-shadow: none ;
   border: none;
 }
