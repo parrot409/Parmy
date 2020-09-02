@@ -1,8 +1,15 @@
 import PageIndex from './pages/Index'
+import PageCollecting from './pages/collecting'
 
 export default [
   {
     path: '/',
-    component: PageIndex
+    name: 'home',
+    component: PageCollecting
+  },
+  {
+    path: '/collecting',
+    name: 'collecting',
+    props: true
   }
 ]

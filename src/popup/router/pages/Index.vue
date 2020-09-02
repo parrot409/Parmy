@@ -1,47 +1,47 @@
 <template>
-  <div class="main-container">
+  <div class="main-container" action="javascript:alert()">
     <h1 class="head-container">
       Parmy
     </h1>
     <label class="checkbox-input">
-      <input @click="triggerTextInput()" ref="isScoped" type="checkbox" />
+      <input type="checkbox" v-model="isScoped"  />
       <span></span>
       Use scopes
     </label>
     <div class="text-input">
-      <input :class="{'addpadd':isScoped}" type="text" placeholder="Scope: *.google.com" />
-      <div :class="{'open':isScoped,'close':isScoped === false}" class="text-input-status" >
+      <input v-model="domain" @keyup="validateDomain()" :disabled="isScoped ? false : true" :class="{'addpadd':isScoped}" ref="domainInput" type="text" placeholder="Scope: *.google.com" />
+      <div :class="{'open':isScoped,'close':isScoped === false,'valid':isDomainValid == true,'notvalid':isDomainValid == false}" class="text-input-status" >
+        <i class="fas fa-check" aria-hidden="true"></i>
         <i class="fa fa-times" aria-hidden="true"></i>
-        <!--<i class="fas fa-check" aria-hidden="true"></i> -->
       </div>
     </div> 
     <div class="checkbox-input multiple">
-      <label>
-        <input type="checkbox" />
+      <label >
+        <input v-model="collectGet" type="checkbox"/>
         <span></span>
         GET
       </label>
       <label>
-        <input type="checkbox" />
+        <input v-model="collectPost" type="checkbox" />
         <span></span>
         POST
       </label>
       <label>
-        <input type="checkbox" />
+        <input v-model="collectCookies" type="checkbox" />
         <span></span>
         Cookies
       </label>
     </div>
     <div class="radio-input">
-      <label><div><input type="radio" name="A"/><span></span>JSON</div></label>
-      <label><div><input type="radio" name="A"/><span></span>Lines</div></label>
+      <label><div><input v-model="output" value="json" type="radio" name="A" checked/><span></span>JSON</div></label>
+      <label><div><input v-model="output" value="lines" type="radio" name="A"/><span></span>Lines</div></label>
     </div>
     <label class="checkbox-input">
-      <input type="checkbox" />
+      <input type="checkbox" v-model="includeTypes" />
       <span></span>
       Include parameter types
-    </label> 
-    <div class="circle">
+    </label>
+    <div @click="startAction()" class="circle" >
       <i class="fas fa-power-off"></i>
     </div>
     <div class="icons">
@@ -50,24 +50,54 @@
     </div>
   </div>
 </template>
-
 <script>
-
 export default {
   data () {
     return {
-      isScoped: null
+      isScoped: null,
+      domain: "",
+      isDomainValid: false,
+      collectGet: false,
+      collectPost: false,
+      collectCookies: false,
+      includeTypes: false,
+      output: "json"
     }
   },
   methods: {
-    triggerTextInput: function(){
-      this.isScoped = this.$refs["isScoped"].checked
+    validateDomain: function(){
+      let domain = this.$refs["domainInput"].value;
+
+      let hasStar = !(domain.indexOf("*") == -1)
+
+      let domainReg = /^[a-zA-Z0-9][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9]{0,1}\.([a-zA-Z]{1,6}|[a-zA-Z0-9-]{1,30}\.[a-zA-Z]{2,3})$/
+      let hostReg = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/
+
+      if( !hasStar && domainReg.test(domain) || hostReg.test(domain) ){
+        this.isDomainValid = true;
+        return;
+      } else if(hasStar){
+        let parts = domain.split(".")
+        let noStar = parts.slice(1).join(".")
+        if(parts[0] == "*" && domainReg.test(noStar)){
+          this.isDomainValid = true;
+          return;
+        }
+      }
+      this.isDomainValid = false;
+    },
+    startAction: function(){
+      if(this.isScoped && !this.isDomainValid){
+        return;
+      }
+      let domain = ( (this.isScoped == true) ? this.domain : null)
+
+      let data =  { "domain":domain , "output":this.output,"includeTypes":this.includeTypes,"collect" : {"GET":this.collectGet,"POST":this.collectPost,"cookies":this.collectCookies} };
+      // this.$router.replace({name:'collecting', params:data});
     }
   }
 }
-
 </script>
-
 <style lang="scss" scoped>
 @import "./../../css/vars";
 @mixin custom-input {
@@ -207,7 +237,6 @@ export default {
   .text-input-status{
     position: absolute;
     top:  0px;
-    background-color: rgb(216, 3, 3);
     height: 100%;
     width: 40px;
     border-radius: 0px 6px 6px 0px;
@@ -222,6 +251,20 @@ export default {
   .text-input-status.open{
     right: 0px;
     animation: textInputTransitionOpen 0.3s alternate;
+  }
+
+  .text-input-status.valid{
+    background-color: #31c35a;
+    & svg:nth-child(2){
+      display: none;
+    }
+  }
+
+  .text-input-status.notvalid {
+    background-color: rgb(216, 3, 3);
+    & svg:nth-child(1){
+      display: none;
+    }
   }
 
   .text-input-status svg{
@@ -298,9 +341,4 @@ export default {
     color: darken($accentColor,6%);
   }
 }
-
-
-
-
-
 </style>
