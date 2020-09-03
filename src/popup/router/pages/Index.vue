@@ -90,9 +90,10 @@ export default {
       if(this.isScoped && !this.isDomainValid){
         return;
       }
-      let domain = ( (this.isScoped == true) ? this.domain : null)
-
-      let data =  { "domain":domain , "output":this.output,"includeTypes":this.includeTypes,"collect" : {"GET":this.collectGet,"POST":this.collectPost,"cookies":this.collectCookies} };
+      let domain = ( (this.isScoped == true) ? this.domain : false)
+      let data = {"scope":this.domain,"includeTypes":this.includeTypes,"params":{"get":this.collectGet,"post":this.collectPost,"cookies":this.collectCookies}}
+      chrome.runtime.sendMessage({"data":data},function(r){});
+      // let data = { "domain":domain , "output":this.output,"includeTypes":this.includeTypes,"collect" : {"GET":this.collectGet,"POST":this.collectPost,"cookies":this.collectCookies} };
       // this.$router.replace({name:'collecting', params:data});
     }
   }

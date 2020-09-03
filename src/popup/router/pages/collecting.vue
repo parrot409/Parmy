@@ -23,7 +23,7 @@
             <span>120 : 20</span>
         </div>
     </div>
-    <div class="circle" >
+    <div class="circle" @click="startMonitoring">
       <i class="fas fa-power-off"></i>
     </div>
     <div class="icons">
@@ -39,6 +39,11 @@ export default {
     }
   },
   methods: {
+    startMonitoring : function(){
+      chrome.runtime.sendMessage({
+        action: "start"
+      });
+    }
   }
 }
 </script>

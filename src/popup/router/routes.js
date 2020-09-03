@@ -5,7 +5,7 @@ export default [
   {
     path: '/',
     name: 'home',
-    component: PageCollecting
+    component: PageIndex
   },
   {
     path: '/collecting',
