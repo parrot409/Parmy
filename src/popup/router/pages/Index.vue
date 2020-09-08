@@ -1,8 +1,5 @@
 <template>
   <div class="main-container" action="javascript:alert()">
-    <h1 class="head-container">
-      Parmy
-    </h1>
     <label class="checkbox-input">
       <input type="checkbox" v-model="isScoped"  />
       <span></span>
@@ -43,10 +40,6 @@
     </label>
     <div @click="startAction()" class="circle" >
       <i class="fas fa-power-off"></i>
-    </div>
-    <div class="icons">
-      <a href="https://twitter.com/0xParrot" target="_blank"><i class="fab fa-twitter"></i></a>
-      <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
     </div>
   </div>
 </template>
@@ -91,10 +84,11 @@ export default {
         return;
       }
       let domain = ( (this.isScoped == true) ? this.domain : false)
-      let data = {"scope":this.domain,"includeTypes":this.includeTypes,"params":{"get":this.collectGet,"post":this.collectPost,"cookies":this.collectCookies}}
+      let data = {"action":"start","scope":this.domain,"includeTypes":this.includeTypes,"params":{"get":this.collectGet,"post":this.collectPost,"cookies":this.collectCookies}}
       chrome.runtime.sendMessage({"data":data},function(r){});
-      // let data = { "domain":domain , "output":this.output,"includeTypes":this.includeTypes,"collect" : {"GET":this.collectGet,"POST":this.collectPost,"cookies":this.collectCookies} };
-      // this.$router.replace({name:'collecting', params:data});
+      chrome.storage.local.set({'running':true}, function(r) {});
+      chrome.storage.local.set({"pool": {"post":[],"get":[],"cookies":[]}});
+      this.$router.replace({name:'collecting', params:{ "includeTypes":this.includeTypes}});
     }
   }
 }
@@ -153,18 +147,9 @@ export default {
 
 .main-container{
   width: 260px;
-  margin: auto;
   overflow: hidden;
-}
-
-.head-container{
-  font-size: 20px;
-  font-weight: 400;
-  font-family: $secondaryFont;
-  font-style: italic;
-  display: block;
-  margin-top: 15px;
-  text-align: center;
+  position: absolute;
+  left: 45px;
 }
 
 .checkbox-input{
@@ -325,21 +310,4 @@ export default {
   }
 }
 
-.icons{
-  position: absolute;
-  bottom: 5px;
-  left: 149px;
-  user-select: none;
-  *:not(a){
-    width: 19px;
-    margin-left: 5px;
-    height: 19px;
-    color: $accentColor;
-    cursor: pointer
-  }
-
-  *:hover{
-    color: darken($accentColor,6%);
-  }
-}
 </style>

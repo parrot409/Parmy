@@ -3,9 +3,10 @@ class monitor{
         this.scope = scope;
         this.includePs = includeTypes;
         this.params = params;
-        this.tempPool=[];
+        this.tempPool={"post":[],"get":[],"cookies":[]};
         this.scopeReg = /.*/;
         this.generateScopeReg(scope);
+        this.setTimer();
     }
 
     generateScopeReg(scope){
@@ -22,8 +23,33 @@ class monitor{
         this.accpetNetwork = true;
     }
 
-    handleResult(namesArr){
-        console.log(namesArr)
+    handleResult(namesArr,category){
+        namesArr.forEach((item)=>{
+            if(!this.tempPool[category].includes(item))
+                this.tempPool[category].push(item)
+        });
+    }
+
+    setTimer(){
+        this.intervalId = window.setInterval(function(){
+            monitorObj.updateResult();
+        }, 1000);
+    }
+
+    updateResult(){
+        let tempPool = this.tempPool;
+        chrome.storage.local.get(['pool'], function(r) {
+            let pool = r.pool;
+            let categories= Object.keys(tempPool);
+            
+            categories.forEach((category)=>{
+                tempPool[category].forEach((item)=>{
+                    if(!pool[category].includes(item))
+                        pool[category].push(item)
+                });
+            })
+            chrome.storage.local.set({"pool": pool});
+        });
     }
 
     handleGET(url){
@@ -38,15 +64,15 @@ class monitor{
             if(item.done == true) break;
             params.push(item.value)
         }
-
-        this.handleResult(params);
+        this.handleResult(params,"get");
     }
 
-    handlePOST(req){
+    handlePOST(req,handleGet){
         let body = req.requestBody;
         let result;
+        if(req.url.indexOf("?") != -1 && handleGet == true) this.handleGET(req.url);
+
         if(body.error !== undefined){
-            this.handleGET(req.url);
             return;
         }else if(body.formData != undefined){
             result = body.formData;
@@ -59,7 +85,7 @@ class monitor{
         } else return;
         
         result = Object.keys(result);
-        this.handleResult(result);
+        this.handleResult(result,"post");
     }
 
     checkScope(url){
@@ -71,9 +97,20 @@ class monitor{
         }
     }
 
+    handleCookies(url){
+        chrome.cookies.getAll({"url":url},function(r){
+            let names = []
+            r.forEach((item)=>{
+                names.push(item.name);
+            });
+            monitorObj.handleResult(names,"cookies");
+        });
+    }
+
     handleRequest(req){
         if(this.params.get == true && req.method == "GET" && req.url.indexOf("?") != -1 && this.checkScope(req.url) ) this.handleGET(req.url);
-        if(this.params.post == true && req.method == "POST" && ( req.url.indexOf("?") !== -1 || (req.requestBody !== undefined && req.requestBody.error == undefined) ) && this.checkScope(req.url) ) this.handlePOST(req);
+        if(this.params.post == true && req.method == "POST" && ( (req.url.indexOf("?") !== -1 && this.params.get == true ) || (req.requestBody !== undefined && req.requestBody.error == undefined) ) && this.checkScope(req.url) ) this.handlePOST(req,this.params.get == true);
+        if(this.params.cookies == true && this.checkScope(req.url) ) this.handleCookies(req.url);
     }
 }
 
@@ -84,12 +121,19 @@ function startMonitor(data){
     monitorObj.startMonitoring();
 }
 
+function stopMonitor(){
+    if(monitorObj != null){
+        monitorObj.updateResult();
+        window.clearInterval(monitorObj.intervalId);
+        monitorObj = null;
+    }
+}
+
 function handleMessage(request,sender){
     //TODO: Validate the request sender after getting ID from chrome webstore
-    
     if(!request.data || typeof request.data != "object") return false;
-    startMonitor(request.data);
-    return true;   
+    if(request.data.action == "start") startMonitor(request.data);
+    else if(request.data.action == "stop") stopMonitor("A");
 }
 
 chrome.runtime.onMessage.addListener(

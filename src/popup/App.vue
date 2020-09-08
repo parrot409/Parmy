@@ -1,7 +1,17 @@
 <template>
   <div>
-    <router-view></router-view>
+    <h1 class="head-container">
+      Parmy
+    </h1>
+    <transition name="slide">
+      <router-view></router-view>
+    </transition>
+    <div class="icons">
+      <a href="https://twitter.com/0xParrot" target="_blank"><i class="fab fa-twitter"></i></a>
+      <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+    </div>
   </div>
+  
 </template>
 
 <script>
@@ -13,6 +23,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "/css/vars";
 @font-face {
   font-family: "Open Sans SemiBold";
   src: url("./fonts/OpenSans-SemiBold.ttf") format("truetype");
@@ -27,7 +38,21 @@ export default {
   font-weight: normal;
 }
 
-@import "/css/vars";
+.slide-leave-active{
+  transition: 0.3s;
+}
+
+.slide-enter-active {
+  transition: 0.4s;
+}
+
+.slide-enter {
+  transform: translate(100%, 0);
+}
+
+.slide-leave-to {
+  transform: translate(-100%, 0);
+}
 
 *{
   margin: 0px;
@@ -48,6 +73,34 @@ body {
   color: white;
   font-family: $mainFont;
   font-size: $mainfontSize;
+}
+
+.icons{
+  position: absolute;
+  bottom: 5px;
+  left: 152px;
+  user-select: none;
+  *:not(a){
+    width: 19px;
+    margin-left: 5px;
+    height: 19px;
+    color: $accentColor;
+    cursor: pointer
+  }
+
+  *:hover{
+    color: darken($accentColor,6%);
+  }
+}
+
+.head-container{
+  font-size: 20px;
+  font-weight: 400;
+  font-family: $secondaryFont;
+  font-style: italic;
+  display: block;
+  margin-top: 15px;
+  text-align: center;
 }
 </style>
 

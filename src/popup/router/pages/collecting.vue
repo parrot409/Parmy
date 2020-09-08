@@ -1,20 +1,17 @@
 <template>
   <div class="main-container" action="javascript:alert()">
-    <h1 class="head-container">
-      Parmy
-    </h1>
     <div class="stats-container">
         <div class="box">
             <span class="paramName">POST</span>
-            <span class="paramNum">113</span>
+            <span class="paramNum">{{ pool.post }}</span>
         </div>
         <div class="box">
             <span class="paramName">GET</span>
-            <span class="paramNum">113</span>
+            <span class="paramNum">{{ pool.get }}</span>
         </div>
         <div class="box">
             <span class="paramName">Cookies</span>
-            <span class="paramNum">113</span>
+            <span class="paramNum">{{ pool.cookies }}</span>
         </div>
     </div>
     <div class="time-container">
@@ -23,12 +20,8 @@
             <span>120 : 20</span>
         </div>
     </div>
-    <div class="circle" @click="startMonitoring">
+    <div class="circle" @click="stopMonitoring">
       <i class="fas fa-power-off"></i>
-    </div>
-    <div class="icons">
-      <a href="https://twitter.com/0xParrot" target="_blank"><i class="fab fa-twitter"></i></a>
-      <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
     </div>
   </div>
 </template>
@@ -36,17 +29,35 @@
 export default {
   data () {
     return {
+      pool : {"get":0,"post":0,"cookies":0}
     }
   },
   methods: {
-    startMonitoring : function(){
-      chrome.runtime.sendMessage({
-        action: "start"
+    stopMonitoring : function(){
+      chrome.storage.local.set({'running':false}, function(r) {});
+      chrome.runtime.sendMessage({"data":{"action":"stop"}},function(r){});
+    },
+    updateStats : function(){
+      let self = this;
+      chrome.storage.local.get(['pool'], function(r) {
+        self.pool.get = r.pool.get.length;
+        self.pool.post = r.pool.post.length;
+        self.pool.cookies = r.pool.cookies.length;
       });
     }
+  },
+  created: function () {
+    this.updateStats();
+    monitorInterval(true);
   }
 }
+
+function monitorInterval(isStart){
+  if(isStart) window.setInterval(()=>window.vm.$root.$children[0].$children[0].updateStats(),1000)
+}
+
 </script>
+
 <style lang="scss" scoped>
 @import "./../../css/vars";
 
@@ -55,16 +66,6 @@ export default {
   width: 260px;
   margin: auto;
   overflow: hidden;
-}
-
-.head-container{
-  font-size: 20px;
-  font-weight: 400;
-  font-family: $secondaryFont;
-  font-style: italic;
-  display: block;
-  margin-top: 15px;
-  text-align: center;
 }
 
 .stats-container{
@@ -151,21 +152,4 @@ export default {
   }
 }
 
-.icons{
-  position: absolute;
-  bottom: 5px;
-  left: 149px;
-  user-select: none;
-  *:not(a){
-    width: 19px;
-    margin-left: 5px;
-    height: 19px;
-    color: $accentColor;
-    cursor: pointer
-  }
-
-  *:hover{
-    color: darken($accentColor,6%);
-  }
-}
 </style>

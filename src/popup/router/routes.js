@@ -3,13 +3,14 @@ import PageCollecting from './pages/collecting'
 
 export default [
   {
-    path: '/',
+    path: '/home',
     name: 'home',
     component: PageIndex
   },
   {
     path: '/collecting',
     name: 'collecting',
+    component: PageCollecting,
     props: true
   }
 ]
