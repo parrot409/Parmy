@@ -33,11 +33,11 @@
       <label><div><input v-model="output" value="json" type="radio" name="A" checked/><span></span>JSON</div></label>
       <label><div><input v-model="output" value="lines" type="radio" name="A"/><span></span>Lines</div></label>
     </div>
-    <label class="checkbox-input">
+    <!-- <label class="checkbox-input">
       <input type="checkbox" v-model="includeTypes" />
       <span></span>
       Include parameter types
-    </label>
+    </label> -->
     <div @click="startAction()" class="circle" >
       <i class="fas fa-power-off"></i>
     </div>
@@ -53,7 +53,6 @@ export default {
       collectGet: false,
       collectPost: false,
       collectCookies: false,
-      includeTypes: false,
       output: "json"
     }
   },
@@ -84,11 +83,13 @@ export default {
         return;
       }
       let domain = ( (this.isScoped == true) ? this.domain : false)
-      let data = {"action":"start","scope":this.domain,"includeTypes":this.includeTypes,"params":{"get":this.collectGet,"post":this.collectPost,"cookies":this.collectCookies}}
+      let data = {"action":"start","scope":this.domain,"params":{"get":this.collectGet,"post":this.collectPost,"cookies":this.collectCookies}}
       chrome.runtime.sendMessage({"data":data},function(r){});
-      chrome.storage.local.set({'running':true}, function(r) {});
+      chrome.storage.local.set({'running':true});
       chrome.storage.local.set({"pool": {"post":[],"get":[],"cookies":[]}});
-      this.$router.replace({name:'collecting', params:{ "includeTypes":this.includeTypes}});
+      chrome.storage.local.set({"output": this.output});
+      chrome.storage.local.set({"time": Math.round(new Date()/1000)});
+      this.$router.replace({name:'collecting'});
     }
   }
 }

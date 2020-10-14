@@ -16,12 +16,11 @@
     </div>
     <div class="time-container">
         <div>
-            <i class="far fa-clock"></i>
-            <span>{{ time }}</span>
+            <span>{{ outputSize }}</span>
         </div>
     </div>
-    <div class="circle" @click="stopMonitoring">
-      <i class="fas fa-power-off"></i>
+    <div class="circle" @click="exportWords">
+      <i class="fas fa-file-export"></i>
     </div>
   </div>
 </template>
@@ -30,39 +29,64 @@ export default {
   data () {
     return {
       pool : {"get":0,"post":0,"cookies":0},
-      time : "00 : 00"
+      outputSize : "",
+      output : ""
     }
   },
   methods: {
-    stopMonitoring : function(){
-      chrome.storage.local.set({'running':false}, function(r) {});
-      chrome.runtime.sendMessage({"data":{"action":"stop"}},function(r){});
-      this.$router.replace({name:'collected'});
+    exportWords : function(){
+        var file = new Blob([this.output], {type: "text/plain"});
+        var a = document.createElement("a"),url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = `output_${Math.floor(+ new Date() / 1000)}`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+        }, 0); 
+
     },
     updateStats : function(){
       let self = this;
-      chrome.storage.local.get(['pool','time'], function(r) {
+      chrome.storage.local.get(['pool'], function(r) {
         self.pool.get = r.pool.get.length;
         self.pool.post = r.pool.post.length;
         self.pool.cookies = r.pool.cookies.length;
+      });
+    },
+    updateOutput : function(){
+      let self = this;
+      chrome.storage.local.get(['pool','output'], function(r) {
+        let all = r.pool.get.concat(r.pool.post).concat(r.pool.cookies);
+        if(r.output == "json"){
+            let output = JSON.stringify(all);
+            self.output = output;
+        } else {
+            let output = "";
+            all.forEach((element) => {
+                output += `${element}\n`;
+            });
+            self.output = output;
+        }
+        let len = self.output.length;
+        let unit = "B";
+        if(len >= 1024 && len < 1048576){
+            unit = "KB";
+            len = (Math.round((len / 1024) * 10)/10)
+        } else if (len >= 1048576) {
+            unit = "MB";
+            len = (Math.round((len / 1048576) * 10)/10)
+        }
 
-        let time = Math.ceil(new Date()/1000) - r.time;
-        let second = (time % 60).toString()
-        second = (second.length == 1 ? "0"+second : second)
-        let minute = Math.floor(time / 60).toString();
-        minute = (minute.length == 1 ? "0"+minute : minute)
-        self.time = `${minute} : ${second}`;
+        self.outputSize = `${len} ${unit}`;
       });
     }
   },
   created: function () {
     this.updateStats();
-    monitorInterval(true);
+    this.updateOutput();
   }
-}
-
-function monitorInterval(isStart){
-  if(isStart) window.setInterval(()=>window.vm.$root.$children[0].$children[0].updateStats(),1000)
 }
 
 </script>
@@ -73,8 +97,10 @@ function monitorInterval(isStart){
 
 .main-container{
   width: 260px;
-  margin: auto;
   overflow: hidden;
+  position: fixed;
+  top: 42px;
+  left: 45px;
 }
 
 .stats-container{
@@ -127,9 +153,7 @@ function monitorInterval(isStart){
             height: 24px;
         }
         span{
-            margin-left: 15px;
             display: block;
-            float:right;
             height: 100%;
             line-height: 25px;
             font-size:16px;
@@ -149,7 +173,7 @@ function monitorInterval(isStart){
   margin-bottom: 10px;
   cursor: pointer;
 
-  .fa-power-off{
+  svg{
     height: 24px;
     width: 24px;
     color: $accentColor;

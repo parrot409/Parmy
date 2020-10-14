@@ -54,6 +54,10 @@ export default {
   transform: translate(-100%, 0);
 }
 
+.slide > *{
+  display: none!important;
+}
+
 *{
   margin: 0px;
   padding: 0px;

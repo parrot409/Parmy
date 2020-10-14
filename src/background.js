@@ -1,7 +1,6 @@
 class monitor{
-    constructor(scope,includeTypes,params){
+    constructor(scope,params){
         this.scope = scope;
-        this.includePs = includeTypes;
         this.params = params;
         this.tempPool={"post":[],"get":[],"cookies":[]};
         this.scopeReg = /.*/;
@@ -117,7 +116,7 @@ class monitor{
 var monitorObj = null;
 
 function startMonitor(data){
-    monitorObj = new monitor(data.scope,data.includeTypes,data.params);
+    monitorObj = new monitor(data.scope,data.params);
     monitorObj.startMonitoring();
 }
 
@@ -130,10 +129,9 @@ function stopMonitor(){
 }
 
 function handleMessage(request,sender){
-    //TODO: Validate the request sender after getting ID from chrome webstore
     if(!request.data || typeof request.data != "object") return false;
     if(request.data.action == "start") startMonitor(request.data);
-    else if(request.data.action == "stop") stopMonitor("A");
+    else if(request.data.action == "stop") stopMonitor();
 }
 
 chrome.runtime.onMessage.addListener(
