@@ -4,11 +4,11 @@ Parmy is a chrome extension that lets you to collect parameters while your brows
 
 ## Screenshot
 
-SS1
+![ss1](https://raw.githubusercontent.com/0xParrot/Parmy/master/screenshots/ss1.png)
 
-SS2
+![ss1](https://raw.githubusercontent.com/0xParrot/Parmy/master/screenshots/ss2.png)
 
-SS3
+![ss1](https://raw.githubusercontent.com/0xParrot/Parmy/master/screenshots/ss3.png)
 
 ## Installation
 
