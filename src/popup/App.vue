@@ -7,8 +7,8 @@
       <router-view></router-view>
     </transition>
     <div class="icons">
-      <a href="https://github.com" target="_blank"><i class="fas fa-bug"></i></a>
-      <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+      <a href="https://github.com/0xParrot/Parmy/issues" target="_blank"><i class="fas fa-bug"></i></a>
+      <a href="https://github.com/0xParrot/Parmy/" target="_blank"><i class="fab fa-github"></i></a>
     </div>
   </div>
   
