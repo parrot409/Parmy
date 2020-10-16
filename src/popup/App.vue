@@ -7,7 +7,7 @@
       <router-view></router-view>
     </transition>
     <div class="icons">
-      <a href="https://twitter.com/0xParrot" target="_blank"><i class="fab fa-twitter"></i></a>
+      <a href="https://github.com" target="_blank"><i class="fas fa-bug"></i></a>
       <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
     </div>
   </div>
