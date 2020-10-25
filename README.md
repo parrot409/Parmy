@@ -14,7 +14,7 @@ Parmy is a chrome extension that lets you to collect parameters while your brows
 
 1. Run this command:
 
-`npm run install;npm run build;`
+`npm install;npm run build;`
 
 2. Then navigate to `chrome://extensions/` and turn on developer mode.
 
